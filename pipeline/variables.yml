@@ -1,13 +1,13 @@
 variables:
   - name: terraformVersion
-    value: 1.11.0
+    value: 1.11.4
   - name: terraformPath
-    value: infrastructure
+    value: infra
   - name: servicePrinciple
-    value: pfimi-buchs
+    value: mcaps-jasojohnson-1
   - name: terraformContainerName
-    value: terraform-svelte
+    value: terraform-easy-auth
   - name: terraformStorageAccountName
-    value: sapbterraform
+    value: sajasonmcapterraform
   - name: terraformResourceGroupName
     value: rg-manual
