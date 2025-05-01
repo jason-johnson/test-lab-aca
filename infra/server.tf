@@ -155,15 +155,6 @@ resource "azuread_application" "backend" {
   }
 }
 
-resource "azuread_application_pre_authorized" "backend" {
-  application_id       = azuread_application.backend.id
-  authorized_client_id = azuread_application.frontend.client_id
-
-  permission_ids = [
-    random_uuid.fe_user_impersonation_id.result,
-  ]
-}
-
 resource "azuread_application_identifier_uri" "backend" {
   application_id = azuread_application.backend.id
   identifier_uri = "api://${azuread_application.backend.client_id}"
@@ -265,12 +256,6 @@ resource "azapi_resource_action" "backend_auth" {
             defaultAuthorizationPolicy = {
               allowedApplications = [
                 azuread_application.backend.client_id,
-                azuread_application.frontend.client_id,
-              ]
-            }
-            jwtClaimChecks = {
-              allowedClientApplications = [
-                azuread_application.frontend.client_id,
               ]
             }
           }
