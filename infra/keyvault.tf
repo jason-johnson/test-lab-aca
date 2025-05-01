@@ -27,12 +27,6 @@ resource "azurerm_role_assignment" "jason" {
   principal_id         = "f69e86b7-ec56-4d0b-9dbd-2505849bb87c"
 }
 
-resource "azurerm_role_assignment" "kv_frontend" {
-  scope                = azurerm_key_vault.main.id
-  role_definition_name = "Key Vault Secrets User"
-  principal_id         = azurerm_container_app.frontend.identity.0.principal_id
-}
-
 resource "azurerm_role_assignment" "kv_backend" {
   scope                = azurerm_key_vault.main.id
   role_definition_name = "Key Vault Secrets User"
