@@ -1,0 +1,11 @@
+# based on info found here:  https://github.com/Azure/acr/tree/main/docs/tasks/buildx
+version: v1.0.0
+steps:
+  - build: >-
+      -t {{.Run.Registry}}/easyauth/backend:{{.Run.ID}}
+      -t {{.Run.Registry}}/easyauth/backend:latest
+      .
+    cache: enabled
+  - push:
+    - {{.Run.Registry}}/easyauth/backend:{{.Run.ID}}
+    - {{.Run.Registry}}/easyauth/backend:latest
