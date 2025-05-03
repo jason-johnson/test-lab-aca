@@ -4,13 +4,12 @@ import sys
 from aiohttp import web
 
 async def handle(request):
-    name = request.match_info.get('name', "Anonymous")
-    text = f"Hello, {name}"
+    result = {}
 
     for header in request.headers:
-        logging.info(f"Header: {header} = {request.headers[header]}")
+        result[header] = request.headers[header]
 
-    return web.Response(text=text)
+    return web.json_response(result)
 
 app = web.Application()
 app.add_routes([web.get('/', handle),
