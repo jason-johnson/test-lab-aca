@@ -89,7 +89,7 @@ SESSION_TOKEN=$(echo "$LOGIN_RESPONSE" | jq -r .authenticationToken)
 
 
 # This is the one which proves the token store is working 
-curl -i -X GET "$APP_URL$PROTECTED_ROUTE" \
+curl -s -X GET "$APP_URL$PROTECTED_ROUTE" \
  -H "X-ZUMO-AUTH: $SESSION_TOKEN"  | jq .
 
 # Alternatively, you can use the access token directly
