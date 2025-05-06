@@ -10,7 +10,7 @@ KV_NAME="kv-testea-dev-chn-6z2f"
 CLIENT_SECRET_KV_SECRET_NAME="backend-entra-app-secret"
 APP_REG_NAME="testea-dev-chn-backend"
 ACA_NAME="ca-testea-dev-chn-backend"
-ACA_RESOURCE_GROUP="rg-testea-dev-chn-6z2f"
+ACA_RESOURCE_GROUP="rg-testea-dev-chn-main"
 PROTECTED_ROUTE="/"
 
 ########################################
@@ -20,7 +20,7 @@ PROTECTED_ROUTE="/"
 TENANT_ID=$(az account show --query tenantId -o tsv)
 CLIENT_ID=$(az ad app list --display-name $APP_REG_NAME --query "[0].appId" -o tsv)
 CLIENT_SECRET=$(az keyvault secret show --vault-name $KV_NAME -n $CLIENT_SECRET_KV_SECRET_NAME | jq -r .value) # e.g. 00000000-0000-0000-0000-000000000000
-APP_ID_URI=$(az ad app show --id "$CLIENT_ID" --query identifierUris[0] -o tsv)
+APP_ID_URI=$(az ad app show --id "$CLIENT_ID" --query "identifierUris[0]" -o tsv)
 APP_URL="https://$(az containerapp show --name $ACA_NAME --resource-group $ACA_RESOURCE_GROUP --query "properties.configuration.ingress.fqdn" -o tsv)"
 
 
