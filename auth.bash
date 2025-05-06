@@ -6,12 +6,23 @@ set -euo pipefail
 # Variables – replace placeholders below
 ########################################
 
-TENANT_ID="9412b47a-813f-4d21-85a5-7772f28bf719"
-CLIENT_ID="40565f16-96b8-4645-947d-bf14f0952226"
-CLIENT_SECRET=$(az keyvault secret show --vault-name kv-testea-dev-chn-6z2f -n backend-entra-app-secret | jq -r .value) # e.g. 00000000-0000-0000-0000-000000000000
-APP_ID_URI="api://40565f16-96b8-4645-947d-bf14f0952226" # e.g. api://00000000-0000-0000-0000-000000000000
-APP_URL="https://ca-testea-dev-chn-backend.ashyflower-479b6f62.switzerlandnorth.azurecontainerapps.io"
-PROTECTED_ROUTE="/" # e.g. /api/products
+KV_NAME="kv-testea-dev-chn-6z2f"
+CLIENT_SECRET_KV_SECRET_NAME="backend-entra-app-secret"
+APP_REG_NAME="testea-dev-chn-backend"
+ACA_NAME="ca-testea-dev-chn-backend"
+ACA_RESOURCE_GROUP="rg-testea-dev-chn-6z2f"
+PROTECTED_ROUTE="/"
+
+########################################
+# 0. Prerequisites
+########################################
+
+TENANT_ID=$(az account show --query tenantId -o tsv)
+CLIENT_ID=$(az ad app list --display-name $APP_REG_NAME --query "[0].appId" -o tsv)
+CLIENT_SECRET=$(az keyvault secret show --vault-name $KV_NAME -n $CLIENT_SECRET_KV_SECRET_NAME | jq -r .value) # e.g. 00000000-0000-0000-0000-000000000000
+APP_ID_URI=$(az ad app show --id "$CLIENT_ID" --query identifierUris[0] -o tsv)
+APP_URL="https://$(az containerapp show --name $ACA_NAME --resource-group $ACA_RESOURCE_GROUP --query "properties.configuration.ingress.fqdn" -o tsv)"
+
 
 ########################################
 # 1. Generate PKCE code verifier/challenge
