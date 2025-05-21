@@ -12,8 +12,7 @@ async def handle(request):
     return web.json_response(result)
 
 app = web.Application()
-app.add_routes([web.get('/', handle),
-                web.get('/{name}', handle)])
+app.add_routes([web.get('/', handle)])
 
 if __name__ == '__main__':
     logging.basicConfig(stream=sys.stderr, level=logging.INFO)
