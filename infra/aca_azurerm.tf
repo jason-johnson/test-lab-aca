@@ -1,14 +1,14 @@
-resource "azurerm_user_assigned_identity" "backend" {
-  name                = provider::namep::namestring("azurerm_user_assigned_identity", local.namep_config, { name = "backend" })
+resource "azurerm_user_assigned_identity" "azrmaca" {
+  name                = provider::namep::namestring("azurerm_user_assigned_identity", local.namep_config, { name = "azrmaca" })
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
 }
 
 locals {
-  backend_app_name = provider::namep::namestring("azurerm_container_app", local.namep_config, { name = "backend" })
+  backend_app_name = provider::namep::namestring("azurerm_container_app", local.namep_config, { name = "azrmaca" })
 }
 
-resource "azurerm_container_app" "backend" {
+resource "azurerm_container_app" "azrmaca" {
   name                         = local.backend_app_name
   container_app_environment_id = azurerm_container_app_environment.main.id
   resource_group_name          = azurerm_resource_group.main.name
@@ -38,7 +38,7 @@ resource "azurerm_container_app" "backend" {
 
   template {
     container {
-      name   = "backend"
+      name   = "azrmaca"
       image  = "${data.azurerm_container_registry.main.login_server}/easyauth/backend:latest"
       cpu    = 0.25
       memory = "0.5Gi"
@@ -82,8 +82,8 @@ resource "azurerm_role_assignment" "acrpull_be" {
 
 resource "random_uuid" "fe_user_impersonation_id" {}
 
-resource "azuread_application" "backend" {
-  display_name = provider::namep::namestring("azuread_application", local.namep_config, { name = "backend" })
+resource "azuread_application" "azrmaca" {
+  display_name = provider::namep::namestring("azuread_application", local.namep_config, { name = "azrmaca" })
   owners       = [data.azuread_client_config.current.object_id]
 
   api {
@@ -155,13 +155,13 @@ resource "azuread_application" "backend" {
   }
 }
 
-resource "azuread_application_identifier_uri" "backend" {
+resource "azuread_application_identifier_uri" "azrmaca" {
   application_id = azuread_application.backend.id
   identifier_uri = "api://${azuread_application.backend.client_id}"
   depends_on     = [azuread_service_principal.backend]
 }
 
-resource "azuread_application_password" "backend" {
+resource "azuread_application_password" "azrmaca" {
   application_id = azuread_application.backend.id
   rotate_when_changed = {
     rotation = time_rotating.main.id
@@ -176,7 +176,7 @@ resource "azurerm_key_vault_secret" "backend_secret" {
   depends_on = [azurerm_role_assignment.managed_admin, azurerm_role_assignment.managed_secrets]
 }
 
-resource "azuread_service_principal" "backend" {
+resource "azuread_service_principal" "azrmaca" {
   client_id = azuread_application.backend.client_id
   owners    = [data.azuread_client_config.current.object_id]
 }
@@ -193,7 +193,7 @@ resource "azurerm_role_assignment" "backend_tokenstore" {
   principal_id         = azurerm_container_app.backend.identity.0.principal_id
 }
 
-data "azurerm_storage_account_blob_container_sas" "backend" {
+data "azurerm_storage_account_blob_container_sas" "azrmaca" {
   connection_string = azurerm_storage_account.main.primary_connection_string
   container_name    = azurerm_storage_container.backend_tokenstore.name
   https_only        = true
