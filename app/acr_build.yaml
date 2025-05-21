@@ -2,10 +2,10 @@
 version: v1.0.0
 steps:
   - build: >-
-      -t {{.Run.Registry}}/easyauth/backend:{{.Run.ID}}
-      -t {{.Run.Registry}}/easyauth/backend:latest
+      -t {{.Run.Registry}}/acalab/server:{{.Run.ID}}
+      -t {{.Run.Registry}}/acalab/server:latest
       .
     cache: enabled
   - push:
-    - {{.Run.Registry}}/easyauth/backend:{{.Run.ID}}
-    - {{.Run.Registry}}/easyauth/backend:latest
+    - {{.Run.Registry}}/acalab/server:{{.Run.ID}}
+    - {{.Run.Registry}}/acalab/server:latest

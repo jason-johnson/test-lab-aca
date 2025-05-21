@@ -39,7 +39,7 @@ resource "azurerm_container_app" "azrmaca" {
   template {
     container {
       name   = "azrmaca"
-      image  = "${data.azurerm_container_registry.main.login_server}/easyauth/backend:latest"
+      image  = "${data.azurerm_container_registry.main.login_server}/acalab/server:latest"
       cpu    = 0.25
       memory = "0.5Gi"
 
