@@ -15,7 +15,7 @@ resource "azurerm_service_plan" "fa" {
 }
 
 resource "azurerm_linux_function_app" "main" {
-  name                = provider::namep::namestring("azurerm_linux_function_app", local.namep_config)
+  name                = provider::namep::namestring("azurerm_function_app", local.namep_config)
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
 
