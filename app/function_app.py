@@ -5,13 +5,8 @@ import logging
 
 app = func.FunctionApp()
 
-@app.service_bus_queue_trigger(
-    queue_name=os.environ["QUEUE_NAME"],
-    connection=os.environ["QUEUE_CONNECTION"],
-    max_dequeue_count=5,
-    visibility_timeout=30,
-    message_encoding="base64",
-)
+@app.service_bus_queue_trigger(arg_name="msg", queue_name=os.environ["QUEUE_NAME"],
+                               connection=os.environ["QUEUE_CONNECTION"])
 async def sbMessage(msg: func.ServiceBusMessage) -> None:
     logging.info(f"Python ServiceBus queue trigger function processed message: {msg.get_body().decode()}")
     logging.info(f"Message ID: {msg.id}")
