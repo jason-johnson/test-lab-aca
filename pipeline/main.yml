@@ -5,7 +5,7 @@ trigger:
     - '*'
   paths:
     exclude:
-    - backend/**
+    - app/**
 
 parameters:
   - name: salt
