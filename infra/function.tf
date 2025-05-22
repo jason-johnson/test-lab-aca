@@ -44,6 +44,8 @@ resource "azurerm_linux_function_app" "main" {
 
   app_settings = {
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = "false"
+    "QUEUE_CONNECTION" = azurerm_servicebus_namespace.main.default_primary_connection_string
+    "QUEUE_NAME" = azurerm_servicebus_queue.fa.name
   }
 
   ftp_publish_basic_authentication_enabled       = false
