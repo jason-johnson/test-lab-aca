@@ -25,7 +25,7 @@ async def sbMessage(msg: func.ServiceBusMessage) -> None:
     logging.info(f"Message Dequeue Count: {msg.dequeue_count}")
 
 @app.route(route="start")
-async def hello(req: func.HttpRequest) -> func.HttpResponse:
+async def start(req: func.HttpRequest) -> func.HttpResponse:
     logging.info("Python HTTP trigger function processed a request.")
     count = req.params.get("count")
     if not count:
@@ -36,6 +36,6 @@ async def hello(req: func.HttpRequest) -> func.HttpResponse:
         else:
             count = req_body.get("count")
 
-    return func.HttpResponse(f"Hello, {count}!") if count else func.HttpResponse(
+    return func.HttpResponse(f"Count: {count}!") if count else func.HttpResponse(
         "Please pass a count on the query string or in the request body", status_code=400
     )
