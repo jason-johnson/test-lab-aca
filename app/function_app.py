@@ -13,7 +13,7 @@ async def sbMessage(msg: func.ServiceBusMessage) -> None:
     logging.info(f"Message Enqueued Time: {msg.enqueued_time_utc}")
     logging.info(f"Message Dequeue Count: {msg.dequeue_count}")
 
-@app.route(route="start")
+@app.route(route="start", auth_level=func.AuthLevel.ANONYMOUS)
 async def start(req: func.HttpRequest) -> func.HttpResponse:
     logging.info("Python HTTP trigger function processed a request.")
     count = req.params.get("count")
