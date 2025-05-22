@@ -42,6 +42,10 @@ resource "azurerm_linux_function_app" "main" {
     }
   }
 
+  app_settings = {
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = "false"
+  }
+
   ftp_publish_basic_authentication_enabled       = false
   webdeploy_publish_basic_authentication_enabled = false
 }
