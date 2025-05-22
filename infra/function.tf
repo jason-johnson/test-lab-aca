@@ -23,5 +23,19 @@ resource "azurerm_linux_function_app" "main" {
   storage_account_access_key = azurerm_storage_account.fa.primary_access_key
   service_plan_id            = azurerm_service_plan.fa.id
 
-  site_config {}
+  identity {
+    type = "SystemAssigned"
+  }
+
+  site_config {
+
+    container_registry_use_managed_identity = true
+    application_stack {
+        docker {
+            image_name = "acalab/server"
+            registry_url = data.azurerm_container_registry.main.login_server
+            image_tag = "latest"
+        }
+    }
+  }
 }
