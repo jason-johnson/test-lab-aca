@@ -18,17 +18,24 @@ app = func.FunctionApp()
     visibility_timeout=30,
     message_encoding="base64",
 )
+async def sbMessage(msg: func.ServiceBusMessage) -> None:
+    logging.info(f"Python ServiceBus queue trigger function processed message: {msg.get_body().decode()}")
+    logging.info(f"Message ID: {msg.id}")
+    logging.info(f"Message Enqueued Time: {msg.enqueued_time_utc}")
+    logging.info(f"Message Dequeue Count: {msg.dequeue_count}")
 
-@app.timer_trigger(schedule="0 30 9 * * 1", arg_name="syncTimer", run_on_startup=True, use_monitor=False)
-async def syncAll(syncTimer: func.TimerRequest) -> None:
+@app.route(route="start")
+async def hello(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info("Python HTTP trigger function processed a request.")
+    count = req.params.get("count")
+    if not count:
+        try:
+            req_body = req.get_json()
+        except ValueError:
+            pass
+        else:
+            count = req_body.get("count")
 
-    if syncTimer.past_due:
-        logging.info('The timer is past due!')
-
-    credential = DefaultAzureCredential()
-    client = GraphServiceClient(credentials=credential, scopes=[
-                                'https://graph.microsoft.com/.default'])
-
-    await syncGroups(client)
-
-    logging.info('Python timer trigger function executed.')
+    return func.HttpResponse(f"Hello, {count}!") if count else func.HttpResponse(
+        "Please pass a count on the query string or in the request body", status_code=400
+    )
