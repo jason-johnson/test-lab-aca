@@ -28,6 +28,7 @@ resource "azurerm_linux_function_app" "main" {
   }
 
   site_config {
+    always_on = true
 
     application_insights_connection_string  = azurerm_application_insights.main.connection_string
     application_insights_key                = azurerm_application_insights.main.instrumentation_key
