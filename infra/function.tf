@@ -35,7 +35,7 @@ resource "azurerm_linux_function_app" "main" {
     application_stack {
         docker {
             image_name = "acalab/server"
-            registry_url = "https://{data.azurerm_container_registry.main.login_server}"
+            registry_url = data.azurerm_container_registry.main.login_server
             image_tag = "latest"
         }
     }
