@@ -7,7 +7,7 @@ resource "azurerm_storage_account" "fa" {
 }
 
 resource "azurerm_service_plan" "fa" {
-  name                = provider::namep::namestring("azurerm_service_plan", local.namep_config, { name = "fa" })
+  name                = provider::namep::namestring("azurerm_app_service_plan", local.namep_config, { name = "fa" })
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   os_type             = "Linux"
