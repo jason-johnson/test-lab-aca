@@ -29,13 +29,24 @@ resource "azurerm_linux_function_app" "main" {
 
   site_config {
 
+    application_insights_connection_string  = azurerm_application_insights.main.connection_string
+    application_insights_key                = azurerm_application_insights.main.instrumentation_key
     container_registry_use_managed_identity = true
     application_stack {
         docker {
             image_name = "acalab/server"
-            registry_url = data.azurerm_container_registry.main.login_server
+            registry_url = "https://{data.azurerm_container_registry.main.login_server}"
             image_tag = "latest"
         }
     }
   }
+
+  ftp_publish_basic_authentication_enabled       = false
+  webdeploy_publish_basic_authentication_enabled = false
+}
+
+resource "azurerm_role_assignment" "fun2acr" {
+  scope                = data.azurerm_container_registry.main.id
+  role_definition_name = "AcrPull"
+  principal_id         = azurerm_linux_function_app.main.identity[0].principal_id
 }
