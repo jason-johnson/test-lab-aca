@@ -5,35 +5,35 @@ resource "azurerm_user_assigned_identity" "azrmaca" {
 }
 
 locals {
-  backend_app_name = provider::namep::namestring("azurerm_container_app", local.namep_config, { name = "azrmaca" })
+  azrmaca_app_name = provider::namep::namestring("azurerm_container_app", local.namep_config, { name = "azrmaca" })
 }
 
 resource "azurerm_container_app" "azrmaca" {
-  name                         = local.backend_app_name
+  name                         = local.azrmaca_app_name
   container_app_environment_id = azurerm_container_app_environment.main.id
   resource_group_name          = azurerm_resource_group.main.name
   revision_mode                = "Single"
 
   identity {
     type         = "SystemAssigned, UserAssigned"
-    identity_ids = [azurerm_user_assigned_identity.backend.id]
+    identity_ids = [azurerm_user_assigned_identity.azrmaca.id]
   }
 
   registry {
     server   = data.azurerm_container_registry.main.login_server
-    identity = azurerm_user_assigned_identity.backend.id
+    identity = azurerm_user_assigned_identity.azrmaca.id
   }
 
   secret {
     name                = "microsoft-provider-authentication-secret"
     identity            = "System"
-    key_vault_secret_id = azurerm_key_vault_secret.backend_secret.id
+    key_vault_secret_id = azurerm_key_vault_secret.azrmaca_secret.id
   }
 
   secret {
     name                = "tokenstore-sas"
     identity            = "System"
-    key_vault_secret_id = azurerm_key_vault_secret.backend_sas.id
+    key_vault_secret_id = azurerm_key_vault_secret.azrmaca_sas.id
   }
 
   template {
@@ -77,7 +77,7 @@ resource "azurerm_container_app" "azrmaca" {
 resource "azurerm_role_assignment" "acrpull_be" {
   scope                = data.azurerm_container_registry.main.id
   role_definition_name = "AcrPull"
-  principal_id         = azurerm_user_assigned_identity.backend.principal_id
+  principal_id         = azurerm_user_assigned_identity.azrmaca.principal_id
 }
 
 resource "random_uuid" "fe_user_impersonation_id" {}
@@ -139,7 +139,7 @@ resource "azuread_application" "azrmaca" {
   }
 
   web {
-    redirect_uris = ["https://${local.backend_app_name}.${azurerm_container_app_environment.main.default_domain}/.auth/login/aad/callback"]
+    redirect_uris = ["https://${local.azrmaca_app_name}.${azurerm_container_app_environment.main.default_domain}/.auth/login/aad/callback"]
 
     implicit_grant {
       id_token_issuance_enabled = true
@@ -156,46 +156,46 @@ resource "azuread_application" "azrmaca" {
 }
 
 resource "azuread_application_identifier_uri" "azrmaca" {
-  application_id = azuread_application.backend.id
-  identifier_uri = "api://${azuread_application.backend.client_id}"
-  depends_on     = [azuread_service_principal.backend]
+  application_id = azuread_application.azrmaca.id
+  identifier_uri = "api://${azuread_application.azrmaca.client_id}"
+  depends_on     = [azuread_service_principal.azrmaca]
 }
 
 resource "azuread_application_password" "azrmaca" {
-  application_id = azuread_application.backend.id
+  application_id = azuread_application.azrmaca.id
   rotate_when_changed = {
     rotation = time_rotating.main.id
   }
 }
 
-resource "azurerm_key_vault_secret" "backend_secret" {
-  name         = "backend-entra-app-secret"
+resource "azurerm_key_vault_secret" "azrmaca_secret" {
+  name         = "azrmaca-entra-app-secret"
   key_vault_id = azurerm_key_vault.main.id
-  value        = azuread_application_password.backend.value
+  value        = azuread_application_password.azrmaca.value
 
   depends_on = [azurerm_role_assignment.managed_admin, azurerm_role_assignment.managed_secrets]
 }
 
 resource "azuread_service_principal" "azrmaca" {
-  client_id = azuread_application.backend.client_id
+  client_id = azuread_application.azrmaca.client_id
   owners    = [data.azuread_client_config.current.object_id]
 }
 
-resource "azurerm_storage_container" "backend_tokenstore" {
-  name                  = "backendtokenstore"
+resource "azurerm_storage_container" "azrmaca_tokenstore" {
+  name                  = "azrmacatokenstore"
   storage_account_id    = azurerm_storage_account.main.id
   container_access_type = "private"
 }
 
-resource "azurerm_role_assignment" "backend_tokenstore" {
+resource "azurerm_role_assignment" "azrmaca_tokenstore" {
   scope                = azurerm_storage_account.main.id
   role_definition_name = "Storage Blob Data Contributor"
-  principal_id         = azurerm_container_app.backend.identity.0.principal_id
+  principal_id         = azurerm_container_app.azrmaca.identity.0.principal_id
 }
 
 data "azurerm_storage_account_blob_container_sas" "azrmaca" {
   connection_string = azurerm_storage_account.main.primary_connection_string
-  container_name    = azurerm_storage_container.backend_tokenstore.name
+  container_name    = azurerm_storage_container.azrmaca_tokenstore.name
   https_only        = true
 
   start  = time_rotating.main.id
@@ -211,10 +211,10 @@ data "azurerm_storage_account_blob_container_sas" "azrmaca" {
   }
 }
 
-resource "azurerm_key_vault_secret" "backend_sas" {
-  name         = "backend-sas"
+resource "azurerm_key_vault_secret" "azrmaca_sas" {
+  name         = "azrmaca-sas"
   key_vault_id = azurerm_key_vault.main.id
-  value        = "${azurerm_storage_account.main.primary_blob_endpoint}${azurerm_storage_container.backend_tokenstore.name}${data.azurerm_storage_account_blob_container_sas.backend.sas}"
+  value        = "${azurerm_storage_account.main.primary_blob_endpoint}${azurerm_storage_container.azrmaca_tokenstore.name}${data.azurerm_storage_account_blob_container_sas.azrmaca.sas}"
 
   depends_on = [azurerm_role_assignment.managed_admin, azurerm_role_assignment.managed_secrets]
 }
@@ -223,14 +223,14 @@ resource "time_sleep" "be_auth_delay" {
   create_duration = "90s"
 
   triggers = {
-    container_app_id = azurerm_container_app.backend.id
-    key_vault_secret = azurerm_key_vault_secret.backend_secret.id
+    container_app_id = azurerm_container_app.azrmaca.id
+    key_vault_secret = azurerm_key_vault_secret.azrmaca_secret.id
   }
 }
 
-resource "azapi_resource_action" "backend_auth" {
+resource "azapi_resource_action" "azrmaca_auth" {
   type        = "Microsoft.App/containerApps/authConfigs@2024-03-01"
-  resource_id = "${azurerm_container_app.backend.id}/authConfigs/current"
+  resource_id = "${azurerm_container_app.azrmaca.id}/authConfigs/current"
   method      = "PUT"
 
   depends_on = [time_sleep.be_auth_delay]
@@ -245,17 +245,17 @@ resource "azapi_resource_action" "backend_auth" {
       identityProviders = {
         azureActiveDirectory = {
           registration = {
-            clientId                = azuread_application.backend.client_id
+            clientId                = azuread_application.azrmaca.client_id
             clientSecretSettingName = "microsoft-provider-authentication-secret"
             openIdIssuer            = "https://sts.windows.net/${data.azurerm_subscription.current.tenant_id}/v2.0"
           }
           validation = {
             allowedAudiences = [
-              "api://${azuread_application.backend.client_id}",
+              "api://${azuread_application.azrmaca.client_id}",
             ]
             defaultAuthorizationPolicy = {
               allowedApplications = [
-                azuread_application.backend.client_id,
+                azuread_application.azrmaca.client_id,
               ]
             }
           }
