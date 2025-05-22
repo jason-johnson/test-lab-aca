@@ -43,6 +43,16 @@ resource "azurerm_container_app" "azrmaca" {
       cpu    = 0.25
       memory = "0.5Gi"
 
+      env {
+        name  = "QUEUE_NAME"
+        value = "tbd"
+      }
+
+      env {
+        name = "QUEUE_CONNECTION"
+        value = "tbd"
+      }
+
       volume_mounts {
         name = "client-secret"
         path = "/mnt/secrets"
