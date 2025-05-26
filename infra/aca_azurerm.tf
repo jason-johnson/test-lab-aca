@@ -67,3 +67,9 @@ resource "azurerm_role_assignment" "acrpull_be" {
   role_definition_name = "AcrPull"
   principal_id         = azurerm_user_assigned_identity.azrmaca.principal_id
 }
+
+resource "azurerm_role_assignment" "aca_sb" {
+  scope                = azurerm_servicebus_namespace.main.id
+  role_definition_name = "Azure Service Bus Data Owner"
+  principal_id         = azurerm_user_assigned_identity.azrmaca.principal_id
+}

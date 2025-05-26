@@ -24,7 +24,7 @@ resource "azurerm_role_assignment" "managed_secrets" {
 resource "azurerm_role_assignment" "jason" {
   scope                = azurerm_key_vault.main.id
   role_definition_name = "Key Vault Secrets Officer"
-  principal_id         = "bdad61aa-3d0f-416c-ac6b-b99e47e10c13"
+  principal_id         = var.me_client_id
 }
 
 resource "azurerm_role_assignment" "kv_azrmaca" {
