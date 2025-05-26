@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import os
 from azure.servicebus.aio import ServiceBusClient
 from azure.servicebus import ServiceBusMessage
@@ -11,11 +12,11 @@ FULLY_QUALIFIED_NAMESPACE = os.environ["FULLY_QUALIFIED_NAMESPACE"]
 QUEUE_NAME = os.environ["QUEUE_NAME"]
 
 
-credential = DefaultAzureCredential()
-
-
 async def send_single_message(sender):
     # Create a Service Bus message and send it to the queue
+    print("Sending a single message to the queue...")
+    print("-----------------------")
+    
     message = ServiceBusMessage("Single Message")
     await sender.send_messages(message)
     print("Sent a single message")
@@ -48,6 +49,14 @@ async def send_batch_message(sender):
 
 async def run():
     # create a Service Bus client using the credential
+    print("Sending messages to the Service Bus queue...")
+    print("-----------------------")
+    print(f"Queue Name: {QUEUE_NAME}")
+    print(f"Fully Qualified Namespace: {FULLY_QUALIFIED_NAMESPACE}")
+    print("-----------------------")
+
+    credential = DefaultAzureCredential()
+
     async with ServiceBusClient(
             fully_qualified_namespace=FULLY_QUALIFIED_NAMESPACE,
             credential=credential,
@@ -64,6 +73,8 @@ async def run():
 
         # Close credential when no longer needed.
         await credential.close()
+
+# logging.basicConfig(level=logging.DEBUG)
 
 asyncio.run(run())
 print("Done sending messages")
