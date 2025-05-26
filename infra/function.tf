@@ -58,7 +58,7 @@ resource "azurerm_role_assignment" "fun2acr" {
   principal_id         = azurerm_linux_function_app.main.identity[0].principal_id
 }
 
-resource "azurerm_role_assignment" "aca_sb" {
+resource "azurerm_role_assignment" "fa_sb" {
   scope                = azurerm_servicebus_namespace.main.id
   role_definition_name = "Azure Service Bus Data Owner"
   principal_id         = azurerm_linux_function_app.main.identity[0].principal_id
