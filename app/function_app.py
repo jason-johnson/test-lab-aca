@@ -19,12 +19,12 @@ async def sbMessage(msg: func.ServiceBusMessage) -> None:
         delay = b.get("delay", 0)
         if delay > 0:
             delay = int(delay) / 1000  # Convert milliseconds to seconds
-            logging.info(f"Delaying message processing for {delay} seconds.")
+            logging.info(f"#### Delaying message processing for {delay} seconds.")
             await asyncio.sleep(delay)
         else:
-            logging.info("No delay specified, processing message immediately.")
+            logging.info("#### No delay specified, processing message immediately.")
     except json.JSONDecodeError:
-        logging.warning("Message body is not valid JSON, processing as string.")
+        logging.warning("#### Message body is not valid JSON, processing as string.")
         return
 
         
