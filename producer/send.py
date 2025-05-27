@@ -33,7 +33,7 @@ async def send_a_list_of_messages(sender):
     population = [50,   100,  150,  200,  250,  300,  350,  400,  500,  600,  700,  800,  900,  1000, 11000, 1200, 1300, 1400, 1500, 1600]
     weights =    [0.3, 0.22, 0.08, 0.1, 0.07, 0.01, 0.01, 0.01, 0.01, 0.02, 0.05, 0.03, 0.02,  0.01, 0.01,  0.01, 0.01, 0.01, 0.01, 0.01]
     print(f'Sum of weights: {sum(weights)}')
-    delays = choices(population, weights, k=10**1)
+    delays = choices(population, weights, k=10**5)
     print(f'Delays: {delays[:100]}...')
     print(f'Average delay: {sum(delays) / len(delays)}')
     # Create a list of messages and send it to the queue
@@ -46,7 +46,10 @@ async def send_a_list_of_messages(sender):
         })
         messages.append(ServiceBusMessage(msg))
 
-    await sender.send_messages(messages)
+    n = 100
+    for i in range(0, len(messages), n):
+        await sender.send_messages(messages[i:i + n])
+
     print(f"Sent a list of {len(messages)} messages")
 
 
