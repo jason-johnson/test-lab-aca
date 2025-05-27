@@ -1,3 +1,11 @@
+resource "azurerm_storage_account" "aca" {
+  name                     = provider::namep::namestring("azurerm_storage_account", local.namep_config, { name = "aca" })
+  resource_group_name      = azurerm_resource_group.main.name
+  location                 = azurerm_resource_group.main.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+}
+
 resource "azurerm_user_assigned_identity" "azrmaca" {
   name                = provider::namep::namestring("azurerm_user_assigned_identity", local.namep_config, { name = "azrmaca" })
   resource_group_name = azurerm_resource_group.main.name
@@ -25,6 +33,9 @@ resource "azurerm_container_app" "azrmaca" {
   }
 
   template {
+    max_replicas = 4
+    min_replicas = 1
+
     container {
       name   = "azrmaca"
       image  = "${data.azurerm_container_registry.main.login_server}/acalab/server:latest"
@@ -44,6 +55,11 @@ resource "azurerm_container_app" "azrmaca" {
       env {
         name  = "sbmain__fullyQualifiedNamespace"
         value = azurerm_servicebus_namespace.main.endpoint
+      }
+
+      env {
+        name  = "AzureWebJobsStorage"
+        value = azurerm_storage_account.aca.primary_connection_string
       }
     }
   }
