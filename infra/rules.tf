@@ -15,15 +15,15 @@ resource "azurerm_monitor_autoscale_setting" "fa" {
 
     rule {
       metric_trigger {
-        metric_name        = "CpuPercentage"
-        metric_resource_id = azurerm_service_plan.fa.id
-        metric_namespace   = "Microsoft.Web/serverfarms"
+        metric_name        = "ActiveMessages"
+        metric_resource_id = azurerm_servicebus_namespace.main.id
+        metric_namespace   = "microsoft.servicebus/namespaces"
         time_grain         = "PT1M"
         statistic          = "Average"
-        time_window        = "PT5M"
+        time_window        = "PT10M"
         time_aggregation   = "Average"
         operator           = "GreaterThan"
-        threshold          = 75
+        threshold          = 1000
       }
 
       scale_action {
