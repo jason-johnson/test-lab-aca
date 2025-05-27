@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 import azure.functions as func
@@ -10,22 +11,25 @@ app = func.FunctionApp()
                                connection=os.environ["QUEUE_CONNECTION"])
 async def sbMessage(msg: func.ServiceBusMessage) -> None:
     body = msg.get_body().decode()
-    isJson = False
 
     try:
         b = json.loads(body)
-        isJson = True
         body = b
+
+        delay = b.get("delay", 0)
+        if delay > 0:
+            delay = int(delay) / 1000  # Convert milliseconds to seconds
+            logging.info(f"Delaying message processing for {delay} seconds.")
+            await asyncio.sleep(delay)
+        else:
+            logging.info("No delay specified, processing message immediately.")
     except json.JSONDecodeError:
-        pass
+        logging.warning("Message body is not valid JSON, processing as string.")
+        return
 
-    if isJson:
-        logging.info(f"#### Python ServiceBus queue trigger function processed JSON message: {body}")
-    else:
-        logging.info(f"#### Python ServiceBus queue trigger function processed message: {body}")
-
+        
+    logging.info(f"#### Python ServiceBus queue trigger function processed message: {body}")
     logging.info(f"#### Message ID: {msg.message_id}")
     logging.info(f"#### Message Enqueued Time: {msg.enqueued_time_utc}")
     logging.info(f"#### Message Content Type: {msg.content_type}")
     logging.info(f"#### Message Delivery Count: {msg.delivery_count}")
-    # asyncio.sleep(5)
