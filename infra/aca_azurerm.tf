@@ -66,7 +66,7 @@ resource "azurerm_container_app" "azrmaca" {
 
   ingress {
     external_enabled = true # for testing only
-    target_port      = 43555
+    target_port      = 80
 
     traffic_weight {
       percentage      = 100
