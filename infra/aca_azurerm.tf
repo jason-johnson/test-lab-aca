@@ -33,12 +33,17 @@ resource "azurerm_container_app" "azrmaca" {
 
       env {
         name  = "QUEUE_NAME"
-        value = "tbd"
+        value = azurerm_servicebus_queue.aca.name
       }
 
       env {
         name = "QUEUE_CONNECTION"
-        value = "tbd"
+        value = "sbmain"
+      }
+
+      env {
+        name  = "sbmain__fullyQualifiedNamespace"
+        value = azurerm_servicebus_namespace.main.endpoint
       }
     }
   }

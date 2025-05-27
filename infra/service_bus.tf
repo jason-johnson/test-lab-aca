@@ -12,6 +12,13 @@ resource "azurerm_servicebus_queue" "fa" {
   partitioning_enabled = true
 }
 
+resource "azurerm_servicebus_queue" "aca" {
+  name         = "aca_queue"
+  namespace_id = azurerm_servicebus_namespace.main.id
+
+  partitioning_enabled = true
+}
+
 resource "azurerm_role_assignment" "sb_jason" {
   scope                = azurerm_servicebus_namespace.main.id
   role_definition_name = "Azure Service Bus Data Owner"
