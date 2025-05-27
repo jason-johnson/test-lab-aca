@@ -94,3 +94,9 @@ resource "azurerm_role_assignment" "aca_sb" {
   role_definition_name = "Azure Service Bus Data Owner"
   principal_id         = azurerm_user_assigned_identity.azrmaca.principal_id
 }
+
+resource "azurerm_role_assignment" "aca_sb_si" {
+  scope                = azurerm_servicebus_namespace.main.id
+  role_definition_name = "Azure Service Bus Data Owner"
+  principal_id         = azurerm_container_app.azrmaca.identity[0].principal_id
+}
