@@ -7,4 +7,4 @@ YAML_FILE="acr_build.yaml"
 
 az acr task create -n acalab -r $ACR_NAME -c "https://github.com/jason-johnson/test-lab-aca.git#functions:app" -f $YAML_FILE --commit-trigger-enabled false --base-image-trigger-enabled false
 
-az acr task run --name acalab --registry "$ACR_NAME"  --file $YAML_FILE
+az acr task run --name acalab --registry acrjbjmcap1  --file acr_build.yaml
