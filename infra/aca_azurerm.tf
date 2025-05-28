@@ -64,19 +64,19 @@ resource "azurerm_container_app" "azrmaca" {
 
       startup_probe {
         transport = "HTTP"
-        path      = "/health_probe"
+        path      = "/api/health_probe"
         port      = 80
       }
 
       liveness_probe {
         transport = "HTTP"
-        path      = "/health_probe"
+        path      = "/api/health_probe"
         port      = 80
       }
 
       readiness_probe {
         transport = "HTTP"
-        path      = "/health_probe"
+        path      = "/api/health_probe"
         port      = 80
       }
     }
