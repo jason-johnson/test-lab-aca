@@ -94,7 +94,7 @@ resource "azurerm_container_app" "azrmaca" {
 }
 
 resource "azapi_update_resource" "aca_scale_identity" {
-  type        = "Microsoft.App/jobs@2024-10-02-preview"
+  type        = "Microsoft.App/containerApps@2024-10-02-preview"
   resource_id = azurerm_container_app.azrmaca.id
   body = {
     properties = {
