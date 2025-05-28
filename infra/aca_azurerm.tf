@@ -126,8 +126,8 @@ resource "azapi_update_resource" "container_app_scale_update" {
 
           rules = [
             {
+              name = "servicebus-queue-length"
               custom = {
-                name     = "servicebus-queue-length"
                 identity = azurerm_user_assigned_identity.azrmaca.id
                 metadata = {
                   "queueName"    = azurerm_servicebus_queue.aca.name
