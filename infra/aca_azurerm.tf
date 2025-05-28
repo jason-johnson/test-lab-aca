@@ -83,11 +83,11 @@ resource "azurerm_container_app" "azrmaca" {
 
     # Manual work required to turn on MI auth, see: https://github.com/hashicorp/terraform-provider-azurerm/issues/26570
     custom_scale_rule {
-      name = "servicebus-queue-length"
+      name             = "servicebus-queue-length"
       custom_rule_type = "azure-servicebus"
       metadata = {
-        "queueName" = azurerm_servicebus_queue.aca.name
-        "namespace" = azurerm_servicebus_namespace.main.name
+        "queueName"    = azurerm_servicebus_queue.aca.name
+        "namespace"    = azurerm_servicebus_namespace.main.name
         "messageCount" = "1000"
       }
     }
@@ -110,6 +110,32 @@ resource "azurerm_container_app" "azrmaca" {
   }
 
   depends_on = [azurerm_role_assignment.acrpull_be]
+}
+
+resource "azapi_update_resource" "container_app_scale_update" {
+  type                   = "Microsoft.App/containerApps@2025-01-01"
+  resource_id            = azurerm_container_app.azrmaca.id
+  response_export_values = ["*"]
+
+  body = {
+    properties = {
+      template = {
+        scale = {
+          cooldownPeriod = 1800
+
+          rules = [
+            {
+              custom = {
+                identity = azurerm_user_assigned_identity.azrmaca.id
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+
+  depends_on = [azurerm_container_app.azrmaca, azurerm_user_assigned_identity.azrmaca]
 }
 
 resource "azurerm_role_assignment" "acrpull_be" {
