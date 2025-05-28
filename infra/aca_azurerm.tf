@@ -121,8 +121,8 @@ resource "azapi_update_resource" "container_app_scale_update" {
     properties = {
       template = {
         scale = {
-          cooldownPeriod  = 1800
-          pollingInterval = 30
+          cooldownPeriod  = 300
+          pollingInterval = 300
 
           rules = [
             {
