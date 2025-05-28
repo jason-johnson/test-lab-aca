@@ -93,6 +93,31 @@ resource "azurerm_container_app" "azrmaca" {
   depends_on = [azurerm_role_assignment.acrpull_be]
 }
 
+resource "azapi_update_resource" "aca_scale_identity" {
+  type        = "Microsoft.App/jobs@2024-10-02-preview"
+  resource_id = azurerm_container_app.azrmaca.id
+  body = {
+    properties = {
+      configuration = {
+        eventTriggerConfig = {
+          scale = {
+            rules = [
+              {
+                auth     = []
+                identity = azurerm_user_assigned_identity.azrmaca.id
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+  depends_on = [
+    azurerm_container_app.azrmaca,
+    azurerm_user_assigned_identity.azrmaca
+  ]
+}
+
 resource "azurerm_role_assignment" "acrpull_be" {
   scope                = data.azurerm_container_registry.main.id
   role_definition_name = "AcrPull"
