@@ -61,8 +61,27 @@ resource "azurerm_container_app" "azrmaca" {
         name  = "AzureWebJobsStorage"
         value = azurerm_storage_account.aca.primary_connection_string
       }
+
+      startup_probe {
+        transport = "http"
+        path      = "/health_probe"
+        port      = 80
+      }
+
+      liveness_probe {
+        transport = "http"
+        path      = "/health_probe"
+        port      = 80
+      }
+
+      readiness_probe {
+        transport = "http"
+        path      = "/health_probe"
+        port      = 80
+      }
     }
 
+    # Manual work required to turn on MI auth, see: https://github.com/hashicorp/terraform-provider-azurerm/issues/26570
     custom_scale_rule {
       name = "servicebus-queue-length"
       custom_rule_type = "azure-servicebus"
