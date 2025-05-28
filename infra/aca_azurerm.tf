@@ -129,12 +129,12 @@ resource "azapi_update_resource" "container_app_scale_update" {
               custom = {
                 name     = "servicebus-queue-length"
                 identity = azurerm_user_assigned_identity.azrmaca.id
-                type     = "azure-servicebus"
                 metadata = {
-                  queueName    = azurerm_servicebus_queue.aca.name
-                  namespace    = azurerm_servicebus_namespace.main.name
-                  messageCount = "1000"
+                  "queueName"    = azurerm_servicebus_queue.aca.name
+                  "namespace"    = azurerm_servicebus_namespace.main.name
+                  "messageCount" = "1000"
                 }
+                type = "azure-servicebus"
               }
             }
           ]
