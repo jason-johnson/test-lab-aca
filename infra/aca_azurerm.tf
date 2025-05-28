@@ -122,6 +122,7 @@ resource "azapi_update_resource" "container_app_scale_update" {
       template = {
         scale = {
           cooldownPeriod = 1800
+          pollingInterval = 30
 
           rules = [
             {
@@ -136,6 +137,10 @@ resource "azapi_update_resource" "container_app_scale_update" {
   }
 
   depends_on = [azurerm_container_app.azrmaca, azurerm_user_assigned_identity.azrmaca]
+
+  lifecycle {
+    replace_triggered_by = [ azurerm_container_app.azrmaca ]
+  }
 }
 
 resource "azurerm_role_assignment" "acrpull_be" {
