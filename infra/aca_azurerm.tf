@@ -48,7 +48,7 @@ resource "azurerm_container_app" "azrmaca" {
       }
 
       env {
-        name = "QUEUE_CONNECTION"
+        name  = "QUEUE_CONNECTION"
         value = "sbmain"
       }
 
@@ -60,16 +60,6 @@ resource "azurerm_container_app" "azrmaca" {
       env {
         name  = "AzureWebJobsStorage"
         value = azurerm_storage_account.aca.primary_connection_string
-      }
-    }
-
-    custom_scale_rule {
-      name = "servicebus-queue-length"
-      custom_rule_type = "azure-servicebus"
-      metadata = {
-        "queueName" = azurerm_servicebus_queue.aca.name
-        "namespace" = azurerm_servicebus_namespace.main.name
-        "messageCount" = "1000"
       }
     }
   }
@@ -93,30 +83,7 @@ resource "azurerm_container_app" "azrmaca" {
   depends_on = [azurerm_role_assignment.acrpull_be]
 }
 
-resource "azapi_update_resource" "aca_scale_identity" {
-  type        = "Microsoft.App/containerApps@2024-10-02-preview"
-  resource_id = azurerm_container_app.azrmaca.id
-  body = {
-    properties = {
-      configuration = {
-        eventTriggerConfig = {
-          scale = {
-            rules = [
-              {
-                auth     = []
-                identity = azurerm_user_assigned_identity.azrmaca.id
-              }
-            ]
-          }
-        }
-      }
-    }
-  }
-  depends_on = [
-    azurerm_container_app.azrmaca,
-    azurerm_user_assigned_identity.azrmaca
-  ]
-}
+
 
 resource "azurerm_role_assignment" "acrpull_be" {
   scope                = data.azurerm_container_registry.main.id
