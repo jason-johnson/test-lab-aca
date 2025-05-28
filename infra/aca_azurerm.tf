@@ -81,8 +81,8 @@ resource "azurerm_container_app" "azrmaca" {
       }
     }
 
-    # Manual work required to turn on MI auth, see: https://github.com/hashicorp/terraform-provider-azurerm/issues/26570
-    custom_scale_rule {
+    # Cannot turn on MI auth from here yet, see: https://github.com/hashicorp/terraform-provider-azurerm/issues/26570
+    /* custom_scale_rule {
       name             = "servicebus-queue-length"
       custom_rule_type = "azure-servicebus"
       metadata = {
@@ -90,7 +90,7 @@ resource "azurerm_container_app" "azrmaca" {
         "namespace"    = azurerm_servicebus_namespace.main.name
         "messageCount" = "1000"
       }
-    }
+    } */
   }
 
   ingress {
@@ -121,13 +121,20 @@ resource "azapi_update_resource" "container_app_scale_update" {
     properties = {
       template = {
         scale = {
-          cooldownPeriod = 1800
+          cooldownPeriod  = 1800
           pollingInterval = 30
 
           rules = [
             {
               custom = {
+                name     = "servicebus-queue-length"
                 identity = azurerm_user_assigned_identity.azrmaca.id
+                type     = "azure-servicebus"
+                metadata = {
+                  queueName    = azurerm_servicebus_queue.aca.name
+                  namespace    = azurerm_servicebus_namespace.main.name
+                  messageCount = "1000"
+                }
               }
             }
           ]
@@ -139,7 +146,7 @@ resource "azapi_update_resource" "container_app_scale_update" {
   depends_on = [azurerm_container_app.azrmaca, azurerm_user_assigned_identity.azrmaca]
 
   lifecycle {
-    replace_triggered_by = [ azurerm_container_app.azrmaca ]
+    replace_triggered_by = [azurerm_container_app.azrmaca]
   }
 }
 
