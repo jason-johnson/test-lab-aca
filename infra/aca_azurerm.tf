@@ -70,7 +70,6 @@ resource "azurerm_container_app" "azrmaca" {
         "queueName" = azurerm_servicebus_queue.aca.name
         "namespace" = azurerm_servicebus_namespace.main.name
         "messageCount" = "1000"
-        "connectionFromEnv" = "QUEUE_CONNECTION"
       }
     }
   }
