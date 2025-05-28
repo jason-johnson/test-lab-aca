@@ -65,6 +65,7 @@ resource "azurerm_role_assignment" "fa_sb" {
   principal_id         = azurerm_linux_function_app.main.identity[0].principal_id
 }
 
+# Probably a better method of scaling would be:  https://learn.microsoft.com/en-us/azure/azure-functions/functions-target-based-scaling?tabs=v5%2Ccsharp
 resource "azurerm_monitor_autoscale_setting" "fa" {
   name                = "faAutoscaleSetting"
   resource_group_name = azurerm_resource_group.main.name
