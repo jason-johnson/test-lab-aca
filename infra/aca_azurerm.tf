@@ -62,6 +62,17 @@ resource "azurerm_container_app" "azrmaca" {
         value = azurerm_storage_account.aca.primary_connection_string
       }
     }
+
+    custom_scale_rule {
+      name = "servicebus-queue-length"
+      custom_rule_type = "azure-servicebus"
+      metadata = {
+        "queueName" = azurerm_servicebus_queue.aca.name
+        "namespace" = azurerm_servicebus_namespace.main.name
+        "connection" = "sbmain"
+        "queueLength" = "1000"
+      }
+    }
   }
 
   ingress {
