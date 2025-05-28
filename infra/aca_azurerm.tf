@@ -69,8 +69,8 @@ resource "azurerm_container_app" "azrmaca" {
       metadata = {
         "queueName" = azurerm_servicebus_queue.aca.name
         "namespace" = azurerm_servicebus_namespace.main.name
-        "connection" = "sbmain"
-        "queueLength" = "1000"
+        "messageCount" = "1000"
+        "connectionFromEnv" = "QUEUE_CONNECTION"
       }
     }
   }
