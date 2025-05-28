@@ -62,6 +62,16 @@ resource "azurerm_container_app" "azrmaca" {
         value = azurerm_storage_account.aca.primary_connection_string
       }
     }
+
+    custom_scale_rule {
+      name = "servicebus-queue-length"
+      custom_rule_type = "azure-servicebus"
+      metadata = {
+        "queueName" = azurerm_servicebus_queue.aca.name
+        "namespace" = azurerm_servicebus_namespace.main.name
+        "messageCount" = "1000"
+      }
+    }
   }
 
   ingress {
@@ -81,40 +91,6 @@ resource "azurerm_container_app" "azrmaca" {
   }
 
   depends_on = [azurerm_role_assignment.acrpull_be]
-}
-
-resource "azapi_resource" "aca_scale_identity" {
-  type      = "Microsoft.App/containerApps@2025-02-02-preview"
-  parent_id = azurerm_container_app_environment.main.id
-  name      = local.azrmaca_app_name
-  body = {
-    properties = {
-      template = {
-        scale = {
-          rules = [
-            {
-              custom = {
-                name     = "servicebus-queue-length"
-                auth     = []
-                identity = azurerm_user_assigned_identity.azrmaca.id
-                metadata = {
-                  "queueName"    = azurerm_servicebus_queue.aca.name
-                  "namespace"    = azurerm_servicebus_namespace.main.name
-                  "messageCount" = "1000"
-                }
-                type = "azure-servicebus"
-              }
-            }
-          ]
-        }
-      }
-    }
-  }
-
-  depends_on = [
-    azurerm_container_app.azrmaca,
-    azurerm_user_assigned_identity.azrmaca
-  ]
 }
 
 resource "azurerm_role_assignment" "acrpull_be" {
