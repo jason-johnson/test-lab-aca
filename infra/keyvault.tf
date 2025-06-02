@@ -21,7 +21,7 @@ resource "azurerm_role_assignment" "managed_secrets" {
   principal_id         = data.azurerm_client_config.current.object_id
 }
 
-resource "azurerm_role_assignment" "jason" {
+resource "azurerm_role_assignment" "me" {
   scope                = azurerm_key_vault.main.id
   role_definition_name = "Key Vault Secrets Officer"
   principal_id         = var.me_client_id

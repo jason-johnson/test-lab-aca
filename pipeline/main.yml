@@ -43,3 +43,4 @@ jobs:
           TF_VAR_branch: ${{ variables.saltVar }}
           TF_VAR_manual_resource_group: $(terraformResourceGroupName)
           TF_VAR_manual_container_registry: $(envManualAcr)
+          TF_VAR_me_client_id: $(envUserClientId)

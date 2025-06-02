@@ -14,8 +14,7 @@ variable "app_name" {
 }
 
 variable "me_client_id" {
-  description = "My Client ID"
-  default = "bdad61aa-3d0f-416c-ac6b-b99e47e10c13"
+  description = "Client ID of user running the lab"
 }
 
 variable "manual_resource_group" {

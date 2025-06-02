@@ -13,3 +13,5 @@ variables:
     value: rg-manual
   - name: envManualAcr
     value: acrjbjmcap1
+  - name: envUserClientId
+    value: bdad61aa-3d0f-416c-ac6b-b99e47e10c13

@@ -19,7 +19,7 @@ resource "azurerm_servicebus_queue" "aca" {
   partitioning_enabled = true
 }
 
-resource "azurerm_role_assignment" "sb_jason" {
+resource "azurerm_role_assignment" "sb_me" {
   scope                = azurerm_servicebus_namespace.main.id
   role_definition_name = "Azure Service Bus Data Owner"
   principal_id         = var.me_client_id
