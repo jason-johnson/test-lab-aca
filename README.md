@@ -13,7 +13,7 @@
 7. Update `pipeline/variables.yml` to set variables to correct values
 8. Create a pipeline from this repo for `pipeline/main.yml` and `pipeline/destroy.yml`
 9. Run the `main` pipeline (on `functions` branch) to create the environment
-10. Update `producer/.env` with the server name of the service bus namespace and the queue name you wish to target (seen in pipeline terraform apply step)
+10. Update `producer/.env` with the server name of the service bus namespace and the queue name you wish to target (seen in pipeline terraform apply step, but variable names need to be changed to upper case)
 11. Run `producer/send.py` to send 100k messages to queue
 
 After doing these steps, you can observe the function app or ACA scaling in response to the messages.  They both use the same image which will read the message and sleep based on the delay specified in the message.  The delays
