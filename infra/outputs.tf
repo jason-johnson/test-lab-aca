@@ -1,5 +1,5 @@
 output "fully_qualified_namespace" {
-    value = azurerm_servicebus_namespace.main.endpoint  
+    value = replace(replace(azurerm_servicebus_namespace.main.endpoint, "https://", ""), ":443/", "")  
 }
 
 output "queue_name" {
