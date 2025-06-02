@@ -41,3 +41,5 @@ jobs:
         resourceGroupName: $(terraformResourceGroupName)
         env:
           TF_VAR_branch: ${{ variables.saltVar }}
+          TF_manual_resource_group: $(terraformResourceGroupName)
+          TF_manual_container_registry: $(envManualAcr)

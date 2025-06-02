@@ -17,3 +17,11 @@ variable "me_client_id" {
   description = "My Client ID"
   default = "bdad61aa-3d0f-416c-ac6b-b99e47e10c13"
 }
+
+variable "manual_resource_group" {
+  description = "Name of the manual resource group"
+}
+
+variable "manual_container_registry" {
+  description = "Name of the manual container registry"
+}

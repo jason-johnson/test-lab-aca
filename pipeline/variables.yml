@@ -11,3 +11,5 @@ variables:
     value: sajasonmcapterraform
   - name: terraformResourceGroupName
     value: rg-manual
+  - name: envManualAcr
+    value: acrjbjmcap1

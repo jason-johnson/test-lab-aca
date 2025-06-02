@@ -4,8 +4,8 @@ resource "azurerm_resource_group" "main" {
 }
 
 data "azurerm_container_registry" "main" {
-  name                = "acrjbjmcap1"
-  resource_group_name = "rg-manual"
+  name                = var.manual_container_registry
+  resource_group_name = var.manual_resource_group
 }
 
 resource "azurerm_container_app_environment" "main" {
