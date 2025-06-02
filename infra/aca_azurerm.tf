@@ -109,6 +109,12 @@ resource "azurerm_container_app" "azrmaca" {
     }
   }
 
+  lifecycle {
+    ignore_changes = [
+      template[0].container[0].custom_scale_rule,
+    ]
+  }
+
   depends_on = [azurerm_role_assignment.acrpull_be]
 }
 
