@@ -11,6 +11,6 @@ output "fa_queue_name" {
 }
 
 output "aca_app_settings" {
-    value = azurerm_container_app.azrmaca.main.configuration[0].app_settings
+    value = azurerm_container_app.azrmaca.template.aca_app_settings
   
 }
