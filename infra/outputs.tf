@@ -9,3 +9,8 @@ output "aca_queue_name" {
 output "fa_queue_name" {
     value = azurerm_servicebus_queue.fa.name
 }
+
+output "aca_app_settings" {
+    value = azurerm_container_app.azrmaca.main.configuration[0].app_settings
+  
+}
