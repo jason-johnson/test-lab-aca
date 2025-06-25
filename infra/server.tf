@@ -4,26 +4,8 @@ resource "azurerm_user_assigned_identity" "backend" {
   location            = azurerm_resource_group.main.location
 }
 
-locals {
-  backend_app_name = provider::namep::namestring("azurerm_container_app", local.namep_config, { name = "backend" })
-}
-
-resource "azurerm_role_assignment" "acrpull_be" {
-  scope                = data.azurerm_container_registry.main.id
-  role_definition_name = "AcrPull"
-  principal_id         = azurerm_user_assigned_identity.backend.principal_id
-}
-
-resource "azurerm_key_vault_secret" "backend_secret" {
-  name         = "backend-entra-app-secret"
-  key_vault_id = azurerm_key_vault.main.id
-  value        = azuread_application_password.backend.value
-
-  depends_on = [azurerm_role_assignment.managed_admin, azurerm_role_assignment.managed_secrets]
-}
-
 resource "azurerm_kubernetes_cluster" "main" {
-  name                = provider::namep::namestring("azurerm_kubernetes_cluster", local.namep_config, { name = "aks-costtest" })
+  name                = provider::namep::namestring("azurerm_kubernetes_cluster", local.namep_config)
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
   dns_prefix          = "aks-costtest-dns"
@@ -46,4 +28,17 @@ resource "azurerm_kubernetes_cluster" "main" {
   network_profile {
     network_plugin = "azure"
   }
+}
+resource "azurerm_role_assignment" "acrpull_be" {
+  scope                = data.azurerm_container_registry.main.id
+  role_definition_name = "AcrPull"
+  principal_id         = azurerm_user_assigned_identity.backend.principal_id
+}
+
+resource "azurerm_key_vault_secret" "backend_secret" {
+  name         = "backend-entra-app-secret"
+  key_vault_id = azurerm_key_vault.main.id
+  value        = azuread_application_password.backend.value
+
+  depends_on = [azurerm_role_assignment.managed_admin, azurerm_role_assignment.managed_secrets]
 }
