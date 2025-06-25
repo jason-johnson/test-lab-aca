@@ -1,6 +1,6 @@
 variables:
   - name: terraformVersion
-    value: 1.11.4
+    value: 1.12.2
   - name: terraformPath
     value: infra
   - name: servicePrinciple
