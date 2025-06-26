@@ -1,7 +1,19 @@
-resource "azurerm_user_assigned_identity" "backend" {
-  name                = provider::namep::namestring("azurerm_user_assigned_identity", local.namep_config, { name = "backend" })
-  resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
+resource "azurerm_resource_group" "aks" {
+  name     = provider::namep::namestring("azurerm_resource_group", local.namep_config, { name = "aksnodes" })
+  location = var.location
+}
+
+resource "azurerm_log_analytics_solution" "main" {
+  solution_name         = "Containers"
+  workspace_resource_id = azurerm_log_analytics_workspace.main.id
+  workspace_name        = azurerm_log_analytics_workspace.main.name
+  location              = azurerm_resource_group.main.location
+  resource_group_name   = azurerm_resource_group.main.name
+
+  plan {
+    publisher = "Microsoft"
+    product   = "OMSGallery/Containers"
+  }
 }
 
 resource "azurerm_kubernetes_cluster" "main" {
@@ -16,29 +28,25 @@ resource "azurerm_kubernetes_cluster" "main" {
     vm_size    = "Standard_D4s_v6"
   }
 
+  node_resource_group = azurerm_resource_group.aks.name
+
   identity {
     type = "SystemAssigned"
   }
 
   # Monitoring Addon (for older provider versions)
   oms_agent {
-    log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
+    log_analytics_workspace_id      = azurerm_log_analytics_workspace.main.id
+    msi_auth_for_monitoring_enabled = true
   }
 
   network_profile {
     network_plugin = "azure"
   }
 }
+
 resource "azurerm_role_assignment" "acrpull_be" {
   scope                = data.azurerm_container_registry.main.id
   role_definition_name = "AcrPull"
-  principal_id         = azurerm_user_assigned_identity.backend.principal_id
-}
-
-resource "azurerm_key_vault_secret" "backend_secret" {
-  name         = "backend-entra-app-secret"
-  key_vault_id = azurerm_key_vault.main.id
-  value        = azuread_application_password.backend.value
-
-  depends_on = [azurerm_role_assignment.managed_admin, azurerm_role_assignment.managed_secrets]
+  principal_id         = azurerm_kubernetes_cluster.main.identity[0].principal_id
 }
