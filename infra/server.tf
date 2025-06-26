@@ -1,8 +1,3 @@
-resource "azurerm_resource_group" "aks" {
-  name     = provider::namep::namestring("azurerm_resource_group", local.namep_config, { name = "aksnodes" })
-  location = var.location
-}
-
 resource "azurerm_log_analytics_solution" "main" {
   solution_name         = "Containers"
   workspace_resource_id = azurerm_log_analytics_workspace.main.id
@@ -28,7 +23,7 @@ resource "azurerm_kubernetes_cluster" "main" {
     vm_size    = "Standard_D4s_v6"
   }
 
-  node_resource_group = azurerm_resource_group.aks.name
+  node_resource_group = provider::namep::namestring("azurerm_resource_group", local.namep_config, { name = "aksnodes" })
 
   identity {
     type = "SystemAssigned"
@@ -45,11 +40,6 @@ resource "azurerm_kubernetes_cluster" "main" {
   }
 }
 
-resource "azurerm_resource_group" "aks_baseline" {
-  name     = provider::namep::namestring("azurerm_resource_group", local.namep_config, { name = "aksblnodes" })
-  location = var.location
-}
-
 resource "azurerm_kubernetes_cluster" "baseline" {
   name                = provider::namep::namestring("azurerm_kubernetes_cluster", local.namep_config, { name = "bl" })
   location            = azurerm_resource_group.main.location
@@ -62,7 +52,7 @@ resource "azurerm_kubernetes_cluster" "baseline" {
     vm_size    = "Standard_D4s_v6"
   }
 
-  node_resource_group = azurerm_resource_group.aks_baseline.name
+  node_resource_group = provider::namep::namestring("azurerm_resource_group", local.namep_config, { name = "aksblnodes" })
 
   identity {
     type = "SystemAssigned"
