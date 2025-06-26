@@ -13,3 +13,19 @@ resource "azurerm_application_insights" "main" {
   workspace_id        = azurerm_log_analytics_workspace.main.id
   application_type    = "web"
 }
+
+resource "azurerm_log_analytics_workspace" "bl" {
+  name                = provider::namep::namestring("azurerm_log_analytics_workspace", local.namep_config, { name = "bl" })
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
+}
+
+resource "azurerm_application_insights" "bl" {
+  name                = provider::namep::namestring("azurerm_application_insights", local.namep_config, { name = "bl" })
+  location            = var.location
+  resource_group_name = azurerm_resource_group.main.name
+  workspace_id        = azurerm_log_analytics_workspace.bl.id
+  application_type    = "web"
+}

@@ -60,7 +60,7 @@ resource "azurerm_kubernetes_cluster" "baseline" {
 
   # Monitoring Addon (for older provider versions)
   oms_agent {
-    log_analytics_workspace_id      = azurerm_log_analytics_workspace.main.id
+    log_analytics_workspace_id      = azurerm_log_analytics_workspace.bl.id
     msi_auth_for_monitoring_enabled = true
   }
 
