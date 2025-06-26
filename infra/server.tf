@@ -45,6 +45,69 @@ resource "azurerm_kubernetes_cluster" "main" {
   }
 }
 
+resource "azurerm_monitor_data_collection_endpoint" "main" {
+  name                = provider::namep::namestring("azurerm_monitor_data_collection_endpoint", local.namep_config)
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  kind                = "Linux"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+locals {
+  streams = [
+    "Microsoft-KubePodInventory",
+    "Microsoft-ContainerLogV2"
+  ]
+}
+
+resource "azurerm_monitor_data_collection_rule" "main" {
+  name                        = provider::namep::namestring("azurerm_monitor_data_collection_rule", local.namep_config)
+  location                    = azurerm_resource_group.main.location
+  resource_group_name         = azurerm_resource_group.main.name
+  data_collection_endpoint_id = azurerm_monitor_data_collection_endpoint.main.id
+
+  destinations {
+    log_analytics {
+      workspace_resource_id = azurerm_log_analytics_workspace.main.id
+      name                  = "aks-destination-log"
+    }
+  }
+
+  data_flow {
+    streams = local.streams
+
+    destinations = ["aks-destination-log"]
+  }
+
+  data_sources {
+    extension {
+      streams        = local.streams
+      extension_name = "ContainerInsights"
+      extension_json = jsonencode({
+        "dataCollectionSettings" : {
+          "interval" : "1m",
+          "namespaceFilteringMode" : "Exclude",
+          "namespaces" : ["kube-system", "gatekeeper-system", "azure-arc"]
+          "enableContainerLogV2" : "true"
+        }
+      })
+      name = "ContainerInsightsExtension"
+    }
+  }
+
+  description = "DCR for Azure Monitor Container Insights"
+}
+
+resource "azurerm_monitor_data_collection_rule_association" "main" {
+  name                    = "ContainerInsightsExtension"
+  target_resource_id      = azurerm_kubernetes_cluster.main.id
+  data_collection_rule_id = azurerm_monitor_data_collection_rule.main.id
+  description             = "Association of container insights data collection rule. Deleting this association will break the data collection for this AKS Cluster."
+}
+
 resource "azurerm_role_assignment" "acrpull_be" {
   scope                = data.azurerm_container_registry.main.id
   role_definition_name = "AcrPull"
