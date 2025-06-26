@@ -45,6 +45,35 @@ resource "azurerm_kubernetes_cluster" "main" {
   }
 }
 
+resource "azurerm_kubernetes_cluster" "baseline" {
+  name                = provider::namep::namestring("azurerm_kubernetes_cluster", local.namep_config, { name = "bl" })
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  dns_prefix          = "aks-costtest-dns"
+
+  default_node_pool {
+    name       = "default"
+    node_count = 3
+    vm_size    = "Standard_D4s_v6"
+  }
+
+  node_resource_group = azurerm_resource_group.aks.name
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  # Monitoring Addon (for older provider versions)
+  oms_agent {
+    log_analytics_workspace_id      = azurerm_log_analytics_workspace.main.id
+    msi_auth_for_monitoring_enabled = true
+  }
+
+  network_profile {
+    network_plugin = "azure"
+  }
+}
+
 resource "azurerm_monitor_data_collection_endpoint" "main" {
   name                = provider::namep::namestring("azurerm_monitor_data_collection_endpoint", local.namep_config)
   resource_group_name = azurerm_resource_group.main.name
