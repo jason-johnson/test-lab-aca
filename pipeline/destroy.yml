@@ -1,10 +1,3 @@
-schedules:
-  - cron: "0 23 * * *"
-    displayName: "Daily Trigger at 11 PM"
-    branches:
-      include:
-        - "*"
-    always: true
 trigger: none
 pr: none
 
