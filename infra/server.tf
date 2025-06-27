@@ -1,3 +1,9 @@
+resource "azurerm_user_assigned_identity" "aks_main" {
+  name                = provider::namep::namestring("azurerm_user_assigned_identity", local.namep_config, { name = "aks" })
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+}
+
 resource "azurerm_log_analytics_solution" "main" {
   solution_name         = "Containers"
   workspace_resource_id = azurerm_log_analytics_workspace.main.id
@@ -26,7 +32,8 @@ resource "azurerm_kubernetes_cluster" "main" {
   node_resource_group = provider::namep::namestring("azurerm_resource_group", local.namep_config, { name = "aksnodes" })
 
   identity {
-    type = "SystemAssigned"
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.aks_main.id]
   }
 
   # Monitoring Addon (for older provider versions)
@@ -55,7 +62,8 @@ resource "azurerm_kubernetes_cluster" "baseline" {
   node_resource_group = provider::namep::namestring("azurerm_resource_group", local.namep_config, { name = "aksblnodes" })
 
   identity {
-    type = "SystemAssigned"
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.aks_main.id]
   }
 
   # Monitoring Addon (for older provider versions)
@@ -132,8 +140,15 @@ resource "azurerm_monitor_data_collection_rule_association" "main" {
   description             = "Association of container insights data collection rule. Deleting this association will break the data collection for this AKS Cluster."
 }
 
-resource "azurerm_role_assignment" "acrpull_be" {
+resource "azurerm_role_assignment" "acrpull_kubelet" {
   scope                = data.azurerm_container_registry.main.id
   role_definition_name = "AcrPull"
-  principal_id         = azurerm_kubernetes_cluster.main.identity[0].principal_id
+  principal_id         = azurerm_kubernetes_cluster.main.kubelet_identity[0].object_id
+}
+
+# Role assignment for baseline cluster kubelet identity to pull images from ACR
+resource "azurerm_role_assignment" "acrpull_kubelet_baseline" {
+  scope                = data.azurerm_container_registry.main.id
+  role_definition_name = "AcrPull"
+  principal_id         = azurerm_kubernetes_cluster.baseline.kubelet_identity[0].object_id
 }
