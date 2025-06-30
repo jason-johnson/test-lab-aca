@@ -1,4 +1,6 @@
-data "namep_azure_caf_types" "main" {}
+data "namep_azure_caf_types" "main" {
+  version = "v1.2.29"
+}
 data "namep_azure_locations" "main" {}
 
 resource "random_string" "rnd" {
