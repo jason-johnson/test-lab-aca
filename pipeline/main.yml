@@ -9,9 +9,9 @@ trigger:
 
 parameters:
   - name: salt
-    default: ''
+    default: 'aks'
   - name: useWorkspace
-    default: false
+    default: true
     type: boolean
 
 variables:
