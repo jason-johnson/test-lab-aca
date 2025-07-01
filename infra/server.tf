@@ -190,7 +190,17 @@ resource "azurerm_monitor_data_collection_rule" "baseline" {
         "dataCollectionSettings" : {
           "interval" : "1m",
           "namespaceFilteringMode" : "Off",
-          "enableContainerLogV2" : "true"
+          "enableContainerLogV2" : "true",
+          "streams" : [
+            "Microsoft-KubePodInventory",
+            "Microsoft-ContainerLogV2",
+            "Microsoft-KubeEvents",
+            "Microsoft-KubeNodeInventory",
+            "Microsoft-KubeServices",
+            "Microsoft-InsightsMetrics",
+            "Microsoft-ContainerInventory",
+            "Microsoft-ContainerNodeInventory"
+          ]
         }
       })
       name = "ContainerInsightsExtensionBaseline"
