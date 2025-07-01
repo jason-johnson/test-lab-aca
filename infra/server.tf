@@ -88,10 +88,33 @@ resource "azurerm_monitor_data_collection_endpoint" "main" {
   }
 }
 
+resource "azurerm_monitor_data_collection_endpoint" "baseline" {
+  name                = provider::namep::namestring("azurerm_monitor_data_collection_endpoint", local.namep_config, { name = "bl" })
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  kind                = "Linux"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
 locals {
   streams = [
     "Microsoft-KubePodInventory",
     "Microsoft-ContainerLogV2"
+  ]
+  
+  # Streams for comprehensive logging (no exclusions)
+  all_streams = [
+    "Microsoft-KubePodInventory",
+    "Microsoft-ContainerLogV2",
+    "Microsoft-KubeEvents",
+    "Microsoft-KubeNodeInventory",
+    "Microsoft-KubeServices",
+    "Microsoft-InsightsMetrics",
+    "Microsoft-ContainerInventory",
+    "Microsoft-ContainerNodeInventory"
   ]
 }
 
@@ -138,6 +161,51 @@ resource "azurerm_monitor_data_collection_rule_association" "main" {
   target_resource_id      = azurerm_kubernetes_cluster.main.id
   data_collection_rule_id = azurerm_monitor_data_collection_rule.main.id
   description             = "Association of container insights data collection rule. Deleting this association will break the data collection for this AKS Cluster."
+}
+
+# Comprehensive DCR for baseline cluster (logs everything)
+resource "azurerm_monitor_data_collection_rule" "baseline" {
+  name                        = provider::namep::namestring("azurerm_monitor_data_collection_rule", local.namep_config, { name = "bl" })
+  location                    = azurerm_resource_group.main.location
+  resource_group_name         = azurerm_resource_group.main.name
+  data_collection_endpoint_id = azurerm_monitor_data_collection_endpoint.baseline.id
+
+  destinations {
+    log_analytics {
+      workspace_resource_id = azurerm_log_analytics_workspace.bl.id
+      name                  = "aks-baseline-destination-log"
+    }
+  }
+
+  data_flow {
+    streams = local.all_streams
+    destinations = ["aks-baseline-destination-log"]
+  }
+
+  data_sources {
+    extension {
+      streams        = local.all_streams
+      extension_name = "ContainerInsights"
+      extension_json = jsonencode({
+        "dataCollectionSettings" : {
+          "interval" : "1m",
+          "namespaceFilteringMode" : "Include",
+          "namespaces" : ["*"]
+          "enableContainerLogV2" : "true"
+        }
+      })
+      name = "ContainerInsightsExtensionBaseline"
+    }
+  }
+
+  description = "DCR for Azure Monitor Container Insights - Baseline (logs everything)"
+}
+
+resource "azurerm_monitor_data_collection_rule_association" "baseline" {
+  name                    = "ContainerInsightsExtensionBaseline"
+  target_resource_id      = azurerm_kubernetes_cluster.baseline.id
+  data_collection_rule_id = azurerm_monitor_data_collection_rule.baseline.id
+  description             = "Association of comprehensive data collection rule for baseline cluster. Logs all namespaces and data types."
 }
 
 resource "azurerm_role_assignment" "acrpull_kubelet" {
