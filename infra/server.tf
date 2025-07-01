@@ -184,13 +184,11 @@ resource "azurerm_monitor_data_collection_rule" "baseline" {
 
   data_sources {
     extension {
-      streams        = local.streams
+      streams        = local.all_streams
       extension_name = "ContainerInsights"
       extension_json = jsonencode({
         "dataCollectionSettings" : {
           "interval" : "1m",
-          "namespaceFilteringMode" : "Exclude",
-          "namespaces" : ["kube-system", "gatekeeper-system", "azure-arc"],
           "enableContainerLogV2" : "true"
         }
       })
