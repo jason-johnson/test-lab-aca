@@ -104,7 +104,7 @@ locals {
     "Microsoft-KubePodInventory",
     "Microsoft-ContainerLogV2"
   ]
-  
+
   # Streams for comprehensive logging (no exclusions)
   all_streams = [
     "Microsoft-KubePodInventory",
@@ -145,7 +145,7 @@ resource "azurerm_monitor_data_collection_rule" "main" {
         "dataCollectionSettings" : {
           "interval" : "1m",
           "namespaceFilteringMode" : "Exclude",
-          "namespaces" : ["kube-system", "gatekeeper-system", "azure-arc"]
+          "namespaces" : ["kube-system", "gatekeeper-system", "azure-arc"],
           "enableContainerLogV2" : "true"
         }
       })
@@ -178,7 +178,7 @@ resource "azurerm_monitor_data_collection_rule" "baseline" {
   }
 
   data_flow {
-    streams = local.all_streams
+    streams      = local.all_streams
     destinations = ["aks-baseline-destination-log"]
   }
 
@@ -190,7 +190,7 @@ resource "azurerm_monitor_data_collection_rule" "baseline" {
         "dataCollectionSettings" : {
           "interval" : "1m",
           "namespaceFilteringMode" : "Include",
-          "namespaces" : ["*"]
+          "namespaces" : ["*"],
           "enableContainerLogV2" : "true"
         }
       })
