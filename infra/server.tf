@@ -189,8 +189,7 @@ resource "azurerm_monitor_data_collection_rule" "baseline" {
       extension_json = jsonencode({
         "dataCollectionSettings" : {
           "interval" : "1m",
-          "namespaceFilteringMode" : "Include",
-          "namespaces" : ["*"],
+          "namespaceFilteringMode" : "Off",
           "enableContainerLogV2" : "true"
         }
       })
