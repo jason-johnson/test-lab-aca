@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spammy-appbl-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: spammy-appbl
+  template:
+    metadata:
+      labels:
+        app: spammy-appbl
+    spec:
+      containers:
+        - name: spammy-appbl
+          image: acrjbjmcap1.azurecr.io/spammy:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /health_probe
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 5
